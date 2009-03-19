@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../vendor/RedCloth/lib/redcloth'
+require 'RedCloth'
 
 class Post < Sequel::Model
   set_schema do
