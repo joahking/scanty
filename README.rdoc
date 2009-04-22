@@ -1,6 +1,14 @@
 = Scanty, a really small blog
 
-NOTE: the scanty microblog with jabber posting have been moved to branch jabbit.
+you are seeing the nested inside Rails (or whatever you want) version of this blog
+
+clone into ROOT/blog
+copy racked.rb to ROOT
+start with:
+$ pwd
+ROOT
+$ ruby racked.rb
+read more: http://m.onkey.org/2008/11/10/rails-meets-sinatra
 
 == Overview
 
