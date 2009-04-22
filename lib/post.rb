@@ -41,6 +41,7 @@ class Post < Sequel::Model
     "/past/#{d.year}/#{d.month}/#{d.day}/#{slug}/"
   end
 
+  #this is used in feed, but nesting inside rails can break url_base
   def full_url
     Blog.url_base.gsub(/\/$/, '') + url
   end

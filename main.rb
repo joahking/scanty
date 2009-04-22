@@ -121,6 +121,7 @@ end
 get '/feed' do
   @posts = Scanty::Post.reverse_order(:created_at).limit(10)
   content_type 'application/atom+xml', :charset => 'utf-8'
+  #FIXME this view is broken due to url nesting and post full_url method
   builder :feed
 end
 

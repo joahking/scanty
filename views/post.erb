@@ -6,13 +6,13 @@
     </span>
     <b><a href="<%= post.url %>"><%= post[:title] %></a></b>
     <% if admin? %>
-      <a class="more" href="<%= post.url %>edit">edit</a>
+      <a class="more" href="<%= url(post.url) %>edit">edit</a>
     <% end %>
    </h2>
   <p>tags: <span class="tags">
     <%= post.linked_tags %>
     <% if Blog.disqus_shortname %>
-    | <a href="<%= post.url %>#disqus_thread">comments</a>
+    | <a href="<%= url(post.url) %>#disqus_thread">comments</a>
     <% end %>
   </span>
   </p>

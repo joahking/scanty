@@ -3,22 +3,22 @@
   <h2 class="title">
     <span class="date"><%= post[:created_at].strftime("%b") %>
     <b><%= post[:created_at].strftime("%d") %></b></span>
-    <b><a href="<%= post.url %>"><%= post[:title] %></a></b>
+    <b><a href="<%= url(post.url) %>"><%= post[:title] %></a></b>
     <% if admin? %>
-      <a class="more" href="<%= post.url %>edit">edit</a>
+      <a class="more" href="<%= url(post.url) %>edit">edit</a>
     <% end %>
   </h2>
   <p>tags: <span class="tags">
     <%= post.linked_tags %>
     <% if Blog.disqus_shortname %>
-    | <a href="<%= post.url %>#disqus_thread">comments</a>
+    | <a href="<%= url(post.url) %>#disqus_thread">comments</a>
     <% end %>
   </span>
   </p>
   <div class="entry">
     <%= post.summary %>
     <% if post.more? %>
-    <a href="<%= post.url %>">read more &raquo;</a>
+    <a href="<%= url(post.url) %>">read more &raquo;</a>
     <% end %>
   </div>
 </div>
