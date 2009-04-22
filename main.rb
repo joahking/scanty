@@ -18,11 +18,12 @@ configure do
   end
 
   require 'ostruct'
-  config = YAML.load_file 'config/config.yml'
+  config = YAML.load_file File.dirname(__FILE__) + '/config/config.yml'
   Blog = OpenStruct.new( config["scanty"].
                          merge({
-                                 :title => "Least Significant Bit",
-                                 :header => "%(ask hack learn share)"
+                                 :title => "Para.pent.es blog",
+                                 :header => "la web de los amantes del vuelo libre",
+                                 :url => "/news"
                                }) )
   Sequel.connect(sequel_db_uri)
 end
@@ -46,38 +47,21 @@ helpers do
     stop [ 401, 'Not authorized' ] unless admin?
   end
 
-  # this one will load all js for code highlighting
-  def all_javascripts
-    Dir.entries('public/js').inject("") do |all_js, js|
-      if js =~ /\.js$/
-        all_js << "<script src='/js/#{js}' type='text/javascript'></script>"
-      end
-      all_js
-    end
+  # to allow blog mounted in subdomain
+  def url(url = "")
+    url.gsub!(/^\//, '') # nevermind, send an initial slash
+    "#{Blog.url}/#{url}"
   end
 
-  def all_styles
-    Dir.entries('public/css').inject("") do |all_css, css|
-      if css =~ /\.css$/
-        all_css << "<link href='/css/#{css}' rel='stylesheet' type='text/css' />"
-      end
-      all_css
-    end
+  def home
+    #FIXME doesn't this looks UNDRY?
+    @tags = Scanty::Post.tags
+    posts = Scanty::Post.reverse_order(:created_at).limit(10)
+    erb :index, :locals => { :posts => posts }
   end
 
   def write
     '<li><a href="posts/new">write</a></li>' if admin?
-  end
-
-  # change your friends
-  FRIENDS = [{ :url => "http://www.xuehka.blogspot.com",
-               :text => "xuehka" },
-             { :url => "http://www.mrdias.com",
-               :text => "mrdias" }]
-  def friends
-    FRIENDS.inject("") do |friends, f|
-      friends << "<li><a href='#{f[:url]}'>#{f[:text]}</a></li>"
-    end
   end
 
   def tags
@@ -94,49 +78,54 @@ layout 'layout'
 
 ### Public
 
-get '/' do
-  #FIXME doesn't this looks UNDRY?
-  @tags = Post.tags
-  posts = Post.reverse_order(:created_at).limit(10)
-  erb :index, :locals => { :posts => posts }
+# sorry about these two, have not found yet a better way
+
+# racked.rb turns /news into ""
+get "" do
+  home
+end
+
+# racked.rb turns /news/ into "/"
+get "/" do
+  home
 end
 
 get '/past/:year/:month/:day/:slug/' do
-  #FIXME doesn't this looks UNDRY?
-  @tags = Post.tags
-  post = Post.filter(:slug => params[:slug]).first
+  #FIXME doesn't this looks UNDRY? see home helper method
+  @tags = Scanty::Post.tags
+  post = Scanty::Post.filter(:slug => params[:slug]).first
   stop [ 404, "Page not found" ] unless post
   @title = post.title
   erb :post, :locals => { :post => post }
 end
 
 get '/past/:year/:month/:day/:slug' do
-  redirect "/past/#{params[:year]}/#{params[:month]}/#{params[:day]}/#{params[:slug]}/", 301
+  redirect url("/past/#{params[:year]}/#{params[:month]}/#{params[:day]}/#{params[:slug]}/"), 301
 end
 
 get '/past' do
-  posts = Post.reverse_order(:created_at)
+  posts = Scanty::Post.reverse_order(:created_at)
   @title = "Archive"
   erb :archive, :locals => { :posts => posts }
 end
 
 get '/past/tags/:tag' do
   #FIXME doesn't this looks UNDRY?
-  @tags = Post.tags
+  @tags = Scanty::Post.tags
   tag = params[:tag]
-  posts = Post.filter(:tags.like("%#{tag}%")).reverse_order(:created_at).limit(30)
+  posts = Scanty::Post.filter(:tags.like("%#{tag}%")).reverse_order(:created_at).limit(30)
   @title = "Posts tagged #{tag}"
   erb :tagged, :locals => { :posts => posts, :tag => tag }
 end
 
 get '/feed' do
-  @posts = Post.reverse_order(:created_at).limit(10)
+  @posts = Scanty::Post.reverse_order(:created_at).limit(10)
   content_type 'application/atom+xml', :charset => 'utf-8'
   builder :feed
 end
 
 get '/rss' do
-  redirect '/feed', 301
+  redirect url("/feed"), 301
 end
 
 ### Admin
@@ -146,44 +135,46 @@ get '/auth' do
 end
 
 post '/auth' do
-  set_cookie(Blog.admin_cookie_key, Blog.admin_cookie_value) if params[:password] == Blog.admin_password
-  redirect '/'
+  if params[:password] == Blog.admin_password
+     response.set_cookie(Blog.admin_cookie_key, Blog.admin_cookie_value)
+  end
+  redirect url("/")
 end
 
 get '/posts/new' do
   auth
-  erb :edit, :locals => { :post => Post.new, :url => '/posts' }
+  erb :edit, :locals => { :post => Scanty::Post.new, :url => url('/posts') }
 end
 
 post '/posts' do
   auth
-  post = Post.new({ :title => params[:title], :tags => params[:tags],
+  post = Scanty::Post.new({ :title => params[:title], :tags => params[:tags],
                     :body => params[:body], :created_at => Time.now,
-                    :slug => Post.make_slug(params[:title]) })
+                    :slug => Scanty::Post.make_slug(params[:title]) })
 
   begin
     post.save
-    redirect(post.url)
+    redirect url(post.url)
   rescue
     #FIXME are there better ways of recognizing request origin?
-    redirect 'posts/new'
+    redirect url("/posts/new")
   end
 end
 
 get '/past/:year/:month/:day/:slug/edit' do
   auth
-  post = Post.filter(:slug => params[:slug]).first
+  post = Scanty::Post.filter(:slug => params[:slug]).first
   stop [ 404, "Page not found" ] unless post
-  erb :edit, :locals => { :post => post, :url => post.url }
+  erb :edit, :locals => { :post => post, :url => url(post.url) }
 end
 
 post '/past/:year/:month/:day/:slug/' do
   auth
-  post = Post.filter(:slug => params[:slug]).first
+  post = Scanty::Post.filter(:slug => params[:slug]).first
   stop [ 404, "Page not found" ] unless post
   post.title = params[:title]
   post.tags = params[:tags]
   post.body = params[:body]
   post.save
-  redirect post.url
+  redirect url(post.url)
 end
