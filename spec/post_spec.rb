@@ -1,8 +1,8 @@
 require File.dirname(__FILE__) + '/base'
 
-describe Post do
+describe Scanty::Post do
   before do
-    @post = Post.new
+    @post = Scanty::Post.new
   end
 
   it "has a url in simplelog format: /past/2008/10/17/my_post/" do
@@ -33,26 +33,22 @@ describe Post do
     @post.title = 'hello'
     @post.body = 'world'
     @post.save
-    Post.filter(:title => 'hello').first.body.should == 'world'
+    Scanty::Post.filter(:title => 'hello').first.body.should == 'world'
   end
 
   it "generates a slug from the title (but saved to db on first pass so that url never changes)" do
-    Post.make_slug("RestClient 0.8").should == 'restclient_08'
-    Post.make_slug("Rushmate, rush + TextMate").should == 'rushmate_rush_textmate'
-    Post.make_slug("Object-Oriented File Manipulation").should == 'objectoriented_file_manipulation'
+    Scanty::Post.make_slug("RestClient 0.8").should == 'restclient_08'
+    Scanty::Post.make_slug("Rushmate, rush + TextMate").should == 'rushmate_rush_textmate'
+    Scanty::Post.make_slug("Object-Oriented File Manipulation").should == 'objectoriented_file_manipulation'
   end
 
-  it 'returns tag list' do
-    posts = [{:body=>"code", :tags=>nil, :title=>"tag1,tag2"},
-             {:body=>"code", :tags=>nil, :title=>"tag1,tag2"},
-             {:body=>"code", :tags=>"tag1,tag2", :title=>"hey there"},
-             {:body=>"asdasdasdad", :tags=>"web, another", :title=>"web"},
-             {:body=>"code", :tags=>"tag1, tag2", :title=>"all rigth"},
-             {:body=>"code", :tags=>"tag1, tag2", :title=>"all suppy rigth"},
-             {:body=>"code", :tags=>"tag, tagga", :title=>"un post de prueba"} ]
-    posts.each { |p| Post.create p }
+  it 'returns sorted uniques not-nil tags list' do
+    posts = [ {:body=>"code one", :tags=>nil, :title=>"no tag"},
+              {:body=>"code two", :tags=>"ctag,btag", :title=>"hey there"},
+              {:body=>"code three", :tags=>"web, another", :title=>"web"},
+              {:body=>"code four", :tags=>"ctag,web", :title=>"repeated tags"} ]
+    posts.each { |p| Scanty::Post.create p }
 
-    Post.tags.should == ["tag1", "tag2", "web", "another", "tag2",
-                         "tag", "tagga"]
+    Scanty::Post.tags.should == ["another", "btag", "ctag", "web"]
   end
 end

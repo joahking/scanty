@@ -1,5 +1,6 @@
 require 'RedCloth'
 
+module Scanty
 class Post < Sequel::Model
   set_schema do
     primary_key :id
@@ -20,15 +21,12 @@ class Post < Sequel::Model
     title.downcase.gsub(/ /, '_').gsub(/[^a-z0-9_]/, '').squeeze('_') unless title.nil?
   end
 
-  # returns unique non nil tags
-  # example
-  # [nil, nil, "tag1,tag2", "web, another", "tag1, tag2",
-  #  "tag1, tag2", "tag, tagga"]
-  # returns ["tag1", "tag2", "web", "another", "tag2", "tag", " tagga"]
+  # returns unique non nil tags sorted alphabetically
+  # see specs
   def self.tags
     map(:tags).compact. # nils out
       collect { |t| t.split(',') }.flatten.uniq. # unique tags in 1-dim array
-      collect { |t| t.strip } # around spaces out
+      collect { |t| t.strip }.sort # around spaces out
   end
 
   def linked_tags
@@ -84,5 +82,6 @@ class Post < Sequel::Model
     [ to_html(show.join("\n\n")), hide.size > 0 ]
   end
 end
+end
 
-Post.create_table unless Post.table_exists?
+Scanty::Post.create_table unless Scanty::Post.table_exists?
