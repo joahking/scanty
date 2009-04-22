@@ -3,25 +3,17 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title><%= Blog.title %></title>
-    <meta name="keywords" content="ruby, bdd, rails, merb, sinatra, rack, scanty, blog" />
-    <meta name="description" content="The technological blog of Joaquin Rivera (aka joahking)" />
-    <meta name="author" content="Joaquin Rivera (github.com/joahking)" />
-    <link href="/feed" rel="alternate" title="Primary Feed" type="application/atom+xml" />
-    <%= all_javascripts %>
-    <%= all_styles %>
+    <meta name="keywords" content="parapentes, paragliding, free flight" />
+    <meta name="description" content="The blog of para.pent.es, the free flight community" />
+    <meta name="author" content="para.pent.es" />
+    <link href="<%= url("/feed") %>" rel="alternate" title="Primary Feed" type="application/atom+xml" />
   </head>
-  <body onload="sh_highlightDocument();">
+  <body>
     <!-- start header -->
     <div id="header">
       <div id="logo">
 	<h1><a href="/"><%= Blog.title %></a></h1>
 	<h2><%= Blog.header %></h2>
-      </div>
-      <div id="menu">
-	<ul>
-	  <%= write %>
-	  <li><a href="http://github.com/joahking/scanty/tree">source</a></li>
-	</ul>
       </div>
     </div>
     <!-- end header -->
@@ -38,32 +30,13 @@
 	<ul>
 	  <li id="about">
 	    <h2><b class="text1">About</b></h2>
-	    The blog of Joaquin Rivera<br/>
-	    (aka <a href="http://github.com/joahking/" target="_new">joahking</a>)<br/>
-	    we talk about Ruby, BDD, Linux <br/>
-	    Rails, Merb, Sinatra, Rack and more
+	    The blog of Para.pent.es
 	  </li>
 	  <li>
 	    <h2><b class="text1">Articles</b></h2>
 	    <ul>
 	      <li><a href="/past">Archive</a></li>
               <li><a href="/feed">Subscribe to feed</a></li>
-	    </ul>
-	  </li>
-	  <li>
-	    <div id="github-badge"></div>
-	    <script type="text/javascript" charset="utf-8">
-	      GITHUB_USERNAME="joahking";
-	      GITHUB_LIST_LENGTH=10;
-	      GITHUB_HEAD="div";
-	    </script>
-	    <script src="http://drnicjavascript.rubyforge.org/github_badge/dist/github-badge-launcher.js" type="text/javascript">
-	    </script>
-	  </li>
-	  <li>
-	    <h2><b class="text1">Friends</b></h2>
-	    <ul>
-	      <%= friends %>
 	    </ul>
 	  </li>
 	  <li>
