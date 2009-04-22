@@ -10,6 +10,8 @@ ROOT
 $ ruby racked.rb
 read more: http://m.onkey.org/2008/11/10/rails-meets-sinatra
 
+TODO feature the blog with cucumber
+
 == Overview
 
 Scanty is blogging software.  Software for my blog, to be exact:
